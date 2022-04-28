@@ -1,2 +1,2 @@
-# Ray_sphere
-Ray tracing intergrating spheres with cylindrical ports
+# Ray sphere
+Ray tracing intergrating spheres with cylindrical ports.
