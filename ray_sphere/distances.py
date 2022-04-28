@@ -52,3 +52,39 @@ def line_line_int(P1, v1, P2, v2):
         
         Q = P1 + a*v1
         return Q
+
+def dist_line(O, P, p, u=[]): 
+    # If u = [], dist is the shortest distance between O and P, 
+    # If u is given, dist is the shortest distance between O and P along u
+    # 
+    dist = -1
+    D = []
+    if np.dot(O-P, O-P) == 0: 
+        # O and P are at the same point, so distace = 0
+        dist = 0
+        D = O
+    elif len(u) > 0 and np.dot(p, u): # If u vector is given and moving towards line
+        a = np.dot(P - O, p)/(np.dot(p, u))
+        b = norm_e(P - O)
+        dist = (a**2 - b**2)**0.5
+        # Q = O + dist*u
+    else:    
+        # p = p/np.dot(p, p)**0.5 # ensure unit vector
+        c = P + p*2*np.dot((O-P), (O-P))**0.5
+        dist = np.dot(np.cross(c-P, P-O), np.cross(c-P, P-O))**0.5 \
+            /np.dot(c-P, c-P)**0.5
+        # Use pythagoras to calculate the point on the line 
+        D = P + p*abs(np.dot(O-P, O-P) - dist**2)**0.5 \
+            *np.dot(p, O-P)/(np.dot(p, O-P)*np.dot(p, O-P))**0.5
+    return (dist, D)
+
+
+# def dist_plane(O, u, P0, n):
+#     # Distance to a plane with unit vector n that passes through pt c0
+#     # if point c is on plane then n.(c - c0)
+#     try: 
+#         dist = (np.dot(n, P0) - np.dot(n, v1))/(np.dot(u, n))
+#     except:
+#         dist = -1
+#     return dist
+    
