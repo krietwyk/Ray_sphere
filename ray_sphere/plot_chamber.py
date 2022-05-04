@@ -18,7 +18,7 @@ P, Q: Points
 v: vector 
 """
 
-def plot_sphere(r0, P0, npts, figno):
+def plot_sphere(r0, P0, npts, figno=1):
     """Create datapoints for plotting a sphere, t and f are theta and phi.""" 
     f, t = np.mgrid[0:2*np.pi:npts*1j, 0:np.pi:npts*1j]
     x = r0*np.cos(f)*np.sin(t) + P0[0]
@@ -26,7 +26,7 @@ def plot_sphere(r0, P0, npts, figno):
     z = r0*np.cos(t) + P0[2]
     # Create figure for sphere
     fig = plt.figure(figno)
-    fig.clf()
+    # fig.clf()
     ax = plt.axes(projection='3d')
     # Turn off grid lines
     ax.grid(False)
