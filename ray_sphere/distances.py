@@ -1,10 +1,10 @@
 import numpy as np
 
 def norm_e(v):
-    """Euclidean norm of a."""
+    """Euclidean norm of v, norm_e (v) = (v.v)^0.5."""
     return np.dot(v, v)**0.5
 
-def dist_sph(O, u, P0, r0):
+def disp_sph(O, u, P0, r0):
     """Calculate the possible distances to the sphere for vector, returns
     Q1, dist1: intersection position and distance in direction of u
     Q2, dist2: other intersect, may also be in direction of u but greater
@@ -15,24 +15,24 @@ def dist_sph(O, u, P0, r0):
         print("Doesn't intersect with sphere")
         Q1 = -1
         Q2 = -1
-        dist1 = -1
-        dist2 = -1
+        disp1 = -1
+        disp2 = -1
     else: # two options if the photon is in the sphere
         k1 = -np.dot(u, (O-P0)) - k # distance 1
         k2 = -np.dot(u, (O-P0)) + k # distance 2
         # Photon can move in +'ve and -'ve directions of u so assign 
         # v1 and a vector/pos. in direction of u.
         if np.dot(u, O + k1*u) >= 0: 
-            dist1 = k1
-            dist2 = k2
+            disp1 = k1
+            disp2 = k2
             Q1 = O + k1*u
             Q2 = O + k2*u
         else:
-            dist2 = k1
-            dist1 = k2
+            disp2 = k1
+            disp1 = k2
             Q2 = O + k1*u
             Q1 = O + k2*u
-        return (Q1, dist1, Q2, dist2)
+        return (Q1, disp1, Q2, disp2)
 
 def line_line_int(P1, v1, P2, v2):
     # vector 1: P1 + t1.v1
@@ -50,7 +50,7 @@ def line_line_int(P1, v1, P2, v2):
             print('Parallel')
     else: # lines will intersect
         # Find elements of v1xv2 that are nonzero and use the first
-        # the ratio of an element of cross of P1, P2 with the correspondin 
+        # the ratio of an element of cross of P1, P2 with the corresponding 
         # element of v1xv2 gives the scalar that defines the intersection
         k = v1xv2 != 0 
         a = np.cross((P2-P1), v2)[k]/v1xv2[k]
@@ -58,33 +58,36 @@ def line_line_int(P1, v1, P2, v2):
         
         Q = P1 + a*v1
         return (Q, a)
+    
+def disp_line_point(P1, u, P2):
+    """
+    Calculate the shortest distance between line v = P1 + a u to point P
+    P1: Point in vector v
+    u: Direction of vector u
+    a: A scalar coefficient used to dector vector   
+    P2: position of interest
+    
+    disp: Displacement between O and P, either shortest or moving along u.
+    Q: Position on the line of shortest distance.    
+    """
+    
+    disp = norm_e((P2-P1) - (np.dot((P2-P1), u))*u)
+    b = (np.dot(P2-P1, P2-P1) + disp**2)**0.5
+    Q = P1 + b*u
+    return disp, Q
 
-def dist_line(O, P, p, u=[]): 
-    # If u = [], dist is the shortest distance between O and P, 
-    # If u is given, dist is the shortest distance between O and P along u
-
-    if np.dot(O-P, O-P) == 0: 
-        # O and P are at the same point, so distace = 0
-        dist = 0
-        D = O
-    elif len(u) > 0:
-        print('using line line interscept')
-        (D, dist) = line_line_int(O, u, P, p)
-        # Below is the old method but the line_line_int function can be used
-    # elif len(u) > 0 and np.dot(p, u): # If u vector is given and moving towards line
-    #     a = np.dot(P - O, p)/(np.dot(p, u))
-    #     b = norm_e(P - O)
-    #     dist = (a**2 - b**2)**0.5
-    #     # Q = O + dist*u
-    else:    
-        # p = p/np.dot(p, p)**0.5 # ensure unit vector
-        c = P + p*2*np.dot((O-P), (O-P))**0.5
-        dist = np.dot(np.cross(c-P, P-O), np.cross(c-P, P-O))**0.5 \
-            /np.dot(c-P, c-P)**0.5
-        # Use pythagoras to calculate the point on the line 
-        D = P + p*abs(np.dot(O-P, O-P) - dist**2)**0.5 \
-            *np.dot(p, O-P)/(np.dot(p, O-P)*np.dot(p, O-P))**0.5
-    return (dist, D)
+def line_plane_int(P1, u, P2, n):
+    """
+    Point of intersection for v = P1 + a u and plane with normal n and point P2
+    """
+    if np.dot(n, u)==0:
+        print("Vector doesn't intersect plane")
+        disp = -1
+        Q = -1
+    else:
+        disp = np.dot(n, P2-P1)/np.dot(n, u)
+        Q = P1 + disp*u
+    return disp, Q
 
 def chord_dist(O, P, P0, r0):
     """
@@ -119,7 +122,7 @@ def plane_create(P0):
     w1 = w1/np.dot(w1, w1)**0.5
     return w1, w2  
 
-def dist_cylinder(O, u, P, n, r): 
+def disp_cylinder(O, u, P, n, r): 
     # interactions with the cylinder walls not the caps
     # u is photon, n is port axis from c
     ## Update variables
@@ -162,12 +165,6 @@ def dist_cylinder(O, u, P, n, r):
             v2 = O + d*u
     return (s, v1, d, v2)
 
-# def dist_plane(O, u, P0, n):
-#     # Distance to a plane with unit vector n that passes through pt c0
-#     # if point c is on plane then n.(c - c0)
-#     try: 
-#         dist = (np.dot(n, P0) - np.dot(n, v1))/(np.dot(u, n))
-#     except:
-#         dist = -1
-#     return dist
+
+
     
