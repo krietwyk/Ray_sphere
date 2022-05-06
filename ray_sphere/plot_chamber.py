@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from distances import dist_sph
+from ray_sphere.distances import disp_sph
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 """
@@ -26,7 +26,7 @@ def plot_sphere(r0, P0, npts, figno=1):
     z = r0*np.cos(t) + P0[2]
     # Create figure for sphere
     fig = plt.figure(figno)
-    # fig.clf()
+    fig.clf()
     ax = plt.axes(projection='3d')
     # Turn off grid lines
     ax.grid(False)
@@ -64,7 +64,7 @@ def plot_cylinder(P, n, r, h, npts, figno, ax):
 
 def plot_cylinder_offaxis(r0, P0, p, n, r, h, w1, w2, npts, figno, ax): 
     # Example of intersection between cylinder projection and sphere, Q
-    # (v1, dist1, v2, dist2) = Dist_sph(w1*r + r0*p-P0, n, P0, r0)
+    # (v1, disp1, v2, disp2) = disp_sph(w1*r + r0*p-P0, n, P0, r0)
   
     # Plot the intersection between cylinder projection and sphere
     psi_ = np.linspace(0,2*np.pi,npts)
@@ -73,7 +73,7 @@ def plot_cylinder_offaxis(r0, P0, p, n, r, h, w1, w2, npts, figno, ax):
     for i in range(len(psi_)):
         # Define a vector for the cylinder end then project towards the sphere, G
         Q = r*(w1*np.cos(psi_[i]) + w2*np.sin(psi_[i])) + r0*p-P0
-        (Q1, *_) = dist_sph(Q, n, P0, r0)
+        (Q1, *_) = disp_sph(Q, n, P0, r0)
         
         # Sphere end of the cylinder
         G[:,i] = Q1

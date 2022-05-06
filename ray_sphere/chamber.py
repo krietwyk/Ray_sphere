@@ -1,12 +1,10 @@
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+# import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
-from numpy import pi
 
-
-from distances import norm_e, dist_sph, line_line_int, dist_line, \
+from ray_sphere.distances import norm_e, dist_sph, line_line_int, dist_line, \
     dist_cylinder, plane_create
-from plot_chamber import plot_sphere, plot_cylinder, plot_cylinder_offaxis
+from ray_sphere.plot_chamber import plot_sphere, plot_cylinder, plot_cylinder_offaxis
 
 # plt.interactive(True)
 
@@ -97,12 +95,3 @@ def make_port_offaxis(r0, p0, n):
     Q = r0*p0
     return (w1, w2, Q)
 
-# Create a file to defile
-###### Default options ########################################################
-flag_plot = 1
-
-r0 = 1
-P0 = np.array([0, 0, 0])
-if flag_plot == 1:
-    ax = plot_sphere(r0, P0, 50, 0)
-############################################################################### 
