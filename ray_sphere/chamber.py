@@ -3,7 +3,7 @@
 import numpy as np
 
 from ray_sphere.distances import norm_e, dist_sph, line_line_int, dist_line, \
-    dist_cylinder, plane_create
+    dist_cylinder, plane_create, disp_line_point
 from ray_sphere.plot_chamber import plot_sphere, plot_cylinder, plot_cylinder_offaxis
 
 # plt.interactive(True)
@@ -62,9 +62,9 @@ def make_port_onaxis(r0, P0, r, n):
     r = port radius
     n = normal of port face closest to sphere, pointing outwards   
     """
-    # Normalises the vector, i.e. P is a unit vector
-    if np.dot(n, n.T)**0.5 != 1:    
-        n = n/np.dot(n, n)**0.5 # declare P outside of function
+    # Normalises the vector
+    n = n/norm_e(n)
+    
     # distance from centre of sphere to centre of circular port
     sc = (r0**2-r**2)**0.5
     # Centre of circle defining port
@@ -73,10 +73,10 @@ def make_port_onaxis(r0, P0, r, n):
 
 def make_port_offaxis(r0, p0, n):    
     """Make cylinder on sphere that is off-axis."""
-    p0 = p0/np.dot(p0, p0)**0.5
+    p0 = p0/norm_e(p0)
 
     # Direction of port normal
-    n = n/np.dot(n, n)**0.5
+    n = n/norm_e(n)
     if np.dot(n, p0) == 1: # check if on axis
         print("not off axis!")
         return
@@ -95,3 +95,90 @@ def make_port_offaxis(r0, p0, n):
     Q = r0*p0
     return (w1, w2, Q)
 
+def is_in_on(photon, chamber, i):
+    
+    # Closer to the cylinder axis than the radius
+    dist_r, *_ = disp_line_point(chamber.ele[i].P, chamber.ele[i].n,  
+                                 photon.O)
+    # dist_r, _ = dist_line(photon.O, 
+    #                       chamber.ele[i].P, 
+    #                       chamber.ele[i].n, 
+    #                       photon.u)    
+    # Make a point that is the centre of the far end cap of the cylinder
+    # Q = chamber.ele[i].sc + chamber.ele[i].n*chamber.ele[i].h
+    
+    # Displacement of project onto cylinder axis from sphere centre
+    a = np.dot(photon.O-P0, chamber.ele[i].p)
+    
+    # Further than the spherical cap but is it not too far away
+    # dist_s = np.dot(photon.O-P0, photon.O-P0)**0.5
+    # sc = chamber.ele[i].sc
+    # sc = (r0**2-chamber.ele[i].r**2)**0.5
+    # Closer than the end cap
+    dist_c = chamber.ele[i].sc + chamber.ele[i].h
+    if dist_r <= chamber.ele[i].r and a >= chamber.ele[i].sc and a <= dist_c:
+        print(f'Within on-axis cylinder {i}')
+        is_in = 1
+    else:
+        print(f'Outside of on-axis cylinder {i}')
+        is_in = -99
+    return is_in
+
+
+def is_in_off(photon, chamber, i):
+    # flag_cont = 1 # if 0, reduce calcs and run to return faster
+    w1 = chamber.ele[i].w1
+    w2 = chamber.ele[i].w2
+    
+    # Photon with the cylinder radius from cylinder axis
+    dist_r, *_ = disp_line_point(chamber.ele[i].P, chamber.ele[i].n,  
+                                 photon.O)
+    
+    # Make a point that is the centre of the far end cap of the cylinder
+    Q = chamber.ele[i].P + chamber.ele[i].n*chamber.ele[i].h
+    
+    # Distance of project onto cylinder axis, closer than the end cap
+    a = np.dot(photon.O-Q, -chamber.ele[i].n)
+    
+    # Distance from sphere centre onto port axis
+    b = np.dot(photon.O-P0, chamber.ele[i].p)
+    
+    if norm_e(dist_r) <= chamber.ele[i].r and a >= 0 and b >= r0: 
+        print(f'Within off-axis cylinder {i}')
+        is_in = 1
+    else:
+        print(f'Outside of off-axis cylinder {i}')
+        is_in = -99
+    return is_in
+
+def locator(photon, chamber):
+    flag_chk_S = 1
+    flag_in_in = -99
+    flag_in_off = -99
+    for i in range(len(chamber.ele)):
+        # is in on-axis port
+        if chamber.ele[i].port_type[0:2] == 'on':
+            flag_in_in = is_in_on(photon, chamber, i)
+            if flag_in_in < 0:
+                print(f'not in elemment {i}')
+        # Is in off
+        elif chamber.ele[i].port_type[0:2] == 'of':
+            flag_in_off = is_in_off(photon, chamber, i)
+            if flag_in_off < 0:
+                print(f'not in elemment {i}')
+        # If in port don't check if in sphere 
+        if flag_in_in > 0 or flag_in_off > 0:
+            print(flag_in_in, flag_in_off)
+            print(f'In element {i}')
+            flag_chk_S = 0
+            break        
+
+    # Is in sphere, this is last because it can be a port and sphere sim.
+    if flag_chk_S == 1:
+        if norm_e(photon.O - P0) <= r0:
+            i = -1 # in sphere
+            print(f'in sphere {i}')
+        else:
+            i = -2 # outside of chamber
+            print(f'Outside of chamber {i}')
+    return i
