@@ -6,8 +6,9 @@ def norm_e(v):
 
 def disp_sph(O, u, P0, r0):
     """Calculate the possible distances to the sphere for vector, returns
-    Q1, dist1: intersection position and distance in direction of u
-    Q2, dist2: other intersect, may also be in direction of u but greater
+    Q1, dist1: intersection position and distance, sphere normal and u same 
+    direction or tangent
+    Q2, dist2: other intersect
     """
     u = u/np.dot(u, u)**0.5 # Necessary?
     k = (np.dot(u, (O-P0))**2 - (np.dot(O-P0, O-P0) - (r0*r0)))**0.5
@@ -125,6 +126,11 @@ def plane_create(P0):
 def disp_cylinder(O, u, P, n, r): 
     # interactions with the cylinder walls not the caps
     # u is photon, n is port axis from c
+    """
+    Returns the displacement the positions of the intercepts of the photon and 
+    cylinder. The first dis. and pos. values have normal in the diection of 
+    the trajectory, and other second values are in the opposite direction
+    """
     ## Update variables
     a = u - n*np.dot(u, n)
     b = (O-P) - n*np.dot(O-P, n)
@@ -136,21 +142,20 @@ def disp_cylinder(O, u, P, n, r):
     # Discriminant
     delta = B**2 - 4*A*C
     
-    if delta < 0: 
+    if delta < 0 or A == 0: 
         # doesn't interact with port, so create dummies
         s = -1
         v1 = -1
         d = -1
         v2 = -1
+
     else:            
         # 2 solutions of quadratic formula
         s1 = (-B + delta**0.5)/(2*A)
         s2 = (-B - delta**0.5)/(2*A)
         
         Q1 = O + s1*u
-        # P2 = O + s2*u
-        
-        # from closest point on cylinder axis to intersection points dot u
+        # Q2 = O + s2*u
         
         if np.dot((Q1 - (n*np.dot(Q1-P,n)+P)), u) > 0:
         # P2 - (n*np.dot(P2-c,n)+c)

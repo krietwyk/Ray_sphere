@@ -2,8 +2,8 @@
 # from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
 
-from ray_sphere.distances import norm_e, dist_sph, line_line_int, dist_line, \
-    dist_cylinder, plane_create, disp_line_point
+from ray_sphere.distances import norm_e, disp_sph, line_line_int, \
+    disp_cylinder, plane_create, disp_line_point
 from ray_sphere.plot_chamber import plot_sphere, plot_cylinder, plot_cylinder_offaxis
 
 # plt.interactive(True)
