@@ -18,7 +18,7 @@ P, Q: Points
 v: vector 
 """
 
-def plot_sphere(r0, P0, npts, ax, figno=1):
+def plot_sphere(r0, P0, npts, ax, figno=0):
     """Create datapoints for plotting a sphere, t and f are theta and phi.""" 
     f, t = np.mgrid[0:2*np.pi:npts*1j, 0:np.pi:npts*1j]
     x = r0*np.cos(f)*np.sin(t) + P0[0]
@@ -93,6 +93,9 @@ def plot_cylinder_offaxis(r0, P0, p, n, r, h, w1, w2, npts, figno, ax):
     ax.plot3D(G2[0], G2[1], G2[2], color = 'black')
     
     ax.scatter(r0*p[0], r0*p[1], r0*p[2]) # centre of port on the sphere
+    
+
+    
 
 
 
