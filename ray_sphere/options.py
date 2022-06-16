@@ -7,6 +7,8 @@ from ray_sphere.photon import *
 # from ray_sphere.enclosure import chamber, port_create, make_port_onaxis, \
 #     make_port_offaxis
 
+# Options needs to import everything
+
 plt.interactive(True)
 flag_plot = 1
 
@@ -20,12 +22,13 @@ flag_plot = 1
 r0 = 25
 rhos = 0.9
 P0 = np.array([0, 0, 0])
+figno = 0
 
 if flag_plot == 1:
-    fig = plt.figure(0)
+    fig = plt.figure(figno)
     fig.clf()
     ax = plt.axes(projection='3d')
-    plot_sphere(r0, P0, 50, ax, 0)
+    plot_sphere(r0, P0, 50, ax, figno)
 
 ###################### Define ports    
 ### Port 1
