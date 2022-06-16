@@ -10,12 +10,14 @@ def disp_sph(O, u, P0, r0):
     direction or tangent
     Q2, dist2: other intersect
     """
-    u = u/np.dot(u, u)**0.5 # Necessary?
-    k = (np.dot(u, (O-P0))**2 - (np.dot(O-P0, O-P0) - (r0*r0)))**0.5
+    try:
+        k = (np.dot(u, (O-P0))**2 - (np.dot(O-P0, O-P0) - (r0*r0)))**0.5
+    except:
+        k = np.nan
     if np.isnan(k):
         print("Doesn't intersect with sphere")
-        Q1 = -1
-        Q2 = -1
+        Q1 = np.nan
+        Q2 = np.nan
         disp1 = -1
         disp2 = -1
     else: # two options if the photon is in the sphere
@@ -33,7 +35,7 @@ def disp_sph(O, u, P0, r0):
             disp1 = k2
             Q2 = O + k1*u
             Q1 = O + k2*u
-        return (Q1, disp1, Q2, disp2)
+    return (Q1, disp1, Q2, disp2)
 
 def line_line_int(P1, v1, P2, v2):
     # vector 1: P1 + t1.v1
@@ -107,19 +109,19 @@ def chord_dist(O, P, P0, r0):
     dist = a*r0
     return dist
 
-def plane_create(P0): 
+def plane_create(p): 
     # Creates two orthogonal vectors, penpendicular to P0
-    if (P0==0).all():
+    if (p==0).all():
         print('No vector was provided')
     n = np.array([1, 0, 0])
-    if (P0 == n).all():
+    if (p == n).all():
         n = np.array([0, 1, 0])
-    P0 = P0/np.dot(P0, P0)**0.5
-    w2 = np.cross(P0,n)
+    p = p/np.dot(p, p)**0.5
+    w2 = np.cross(p, n)
     w2 = w2/np.dot(w2, w2)**0.5
-    w1 = np.cross(w2,P0)
-    if np.dot(w1,P0) < 0:
-        w1 = np.cross(-w2,P0)
+    w1 = np.cross(w2, p)
+    if np.dot(w1, p) < 0:
+        w1 = np.cross(-w2, p)
     w1 = w1/np.dot(w1, w1)**0.5
     return w1, w2  
 
