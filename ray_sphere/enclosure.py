@@ -8,15 +8,17 @@ from ray_sphere.distances import norm_e, disp_sph, line_line_int, \
 from ray_sphere.plot_chamber import plot_sphere, plot_cylinder, plot_cylinder_offaxis
 from ray_sphere.options import *
 from ray_sphere.locations import lamb_event
-# plt.interactive(True)
-
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 class chamber:        
     ele = []    
     def add_port(self, port):
         print(f'port number {len(self.ele)} added')
         self.ele.append(port)
-    
+ 
+    def port_empty(self):
+        chamber.ele = []
 
 class port_create:
     def __init__(self, n, p, r, h, rd=-1, rho=-1, NA=1, ni=1):
@@ -31,9 +33,10 @@ class port_create:
         self.rho = rho
         self.rd = rd
         self.NA = NA
+        self.ni = ni
         
         # Add the shape that intersects the sphere
-        if np.dot(n, p) == 1: # if on axis
+        if np.dot(self.n, self.p) == 1: # if on axis
             print('on axis')
             self.port_type = 'on_axis'
             
@@ -96,4 +99,21 @@ def make_port_offaxis(r0, p0, n):
     Q = r0*p0
     return (w1, w2, Q)
 
+def replot_all(chamber, r0, P0, npts, ax, figno=0):
+    fig = plt.figure(figno)
+    fig.clf()
+    ax = plt.axes(projection='3d')
+    plot_sphere(r0, P0, npts, ax, figno)
+    for element in chamber.ele:
+        if (element.n == element.p).all():
+            plot_cylinder(r0, P0, element.P, element.n, element.r, element.h, 
+                          npts, figno, ax)
+        else:
+            plot_cylinder_offaxis(r0, P0, element.p, element.n, element.r, 
+                                  element.h, element.w1, element.w2, 
+                                  npts, figno, ax)
+    return ax
 
+    
+    
+    
